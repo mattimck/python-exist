@@ -8,6 +8,7 @@ from requests_oauthlib import OAuth2
 from slumber.exceptions import HttpClientError, HttpServerError
 from slumber.serialize import Serializer, JsonSerializer
 
+from .auth import ExistAuthKey
 from .exceptions import ExistException, ExistHttpException
 
 BASE_URL = 'https://exist.io/'
@@ -23,8 +24,14 @@ class ExistSerializer(JsonSerializer):
 
 class Exist:
     def __init__(self, client_id, client_secret, access_token, user_id=None):
-        auth = OAuth2(client_id, Client(client_id),
-                      {'access_token': access_token})
+
+        # check if we are using OAuth or just the basic token api
+        if client_id:
+            auth = OAuth2(client_id, Client(client_id),
+                          {'access_token': access_token})
+        else:
+            auth = ExistAuthKey(access_token)
+
         user = user_id if user_id else '$self'
 
         s = Serializer(default="json", serializers=[ExistSerializer()])

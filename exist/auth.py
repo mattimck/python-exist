@@ -1,7 +1,9 @@
 from __future__ import absolute_import
 
 import cherrypy
+import json
 import os
+import requests
 import sys
 import threading
 import traceback
@@ -12,8 +14,33 @@ from oauthlib.oauth2.rfc6749.errors import (
     MissingTokenError
 )
 from requests_oauthlib import OAuth2Session
+from requests.auth import AuthBase
 
-from .exist import OAUTH_URL
+# TODO: These are doubled up in exist.py - put them in central location to import from
+BASE_URL = 'https://exist.io/'
+API_URL = BASE_URL + 'api/'
+OAUTH_URL = BASE_URL + 'oauth2/'
+
+
+class ExistAuthKey(AuthBase):
+    def __init__(self, apikey):
+        self.apikey = apikey
+
+    def __call__(self, r):
+        r.headers['Authorization'] = "Token %s" % self.apikey
+        return r
+
+
+class ExistAuthBasic:
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+        self.token = None
+
+    def authorize(self):
+        response = requests.post(API_URL+'1/auth/simple-token/', {'username': self.username, 'password': self.password})
+        json_resp = json.loads(response.content)
+        self.token = {'access_token': json_resp['token']}
 
 
 class ExistAuth:

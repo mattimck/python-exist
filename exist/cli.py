@@ -2,7 +2,7 @@
 """Exist client
 
 Usage:
-  exist authorize --client_id=<client_id> --client_secret=<client_secret> [--config=<config_file>]
+  exist authorize [--client_id=<client_id> --client_secret=<client_secret> | --api_token=<token> | --username=<username> --password=<password>] [--config=<config_file>]
   exist user [--config=<config_file>]
   exist attributes [<attribute_name>] [--limit=<limit>] [--page=<page>] [--date_min=<date_min>] [--date_max=<date_max>] [--config=<config_file>]
   exist insights [<attribute_name>] [--limit=<limit>] [--page=<page>] [--date_min=<date_min>] [--date_max=<date_max>] [--config=<config_file>]
@@ -31,7 +31,7 @@ from pprint import PrettyPrinter
 from six.moves import configparser
 
 from exist import __version__
-from exist.auth import ExistAuth
+from exist.auth import ExistAuth, ExistAuthBasic
 from exist.exist import Exist
 
 
@@ -40,26 +40,34 @@ class ExistCli:
         """
         Runs the command specified as an argument with the options specified
         """
-        self.config_file = arguments['--config']
+        self.config_file = arguments.get('--config', 'exist.cfg')
         self.config = configparser.ConfigParser()
         self.client_id = None
         self.client_secret = None
         self.access_token = None
 
         if arguments['authorize']:
-            self.client_id = arguments['--client_id']
-            self.client_secret = arguments['--client_secret']
-            self.authorize()
+            # check which type of authorization we are trying for
+            if arguments['--username'] and arguments['--password']:
+                # username and password provided
+                self.authorize(username=arguments['--username'], password=arguments['--password'])
+            elif arguments['--api_token']:
+                # a predetermined token provided
+                self.authorize(api_token=arguments['--api_token'])
+            else:
+                # OAuth credentials provided
+                self.client_id = arguments['--client_id']
+                self.client_secret = arguments['--client_secret']
+                self.authorize()
         elif not arguments['--version'] and not arguments['--help']:
             try:
-                # Fail if config file doesn't exist or is missing information
+                # try to read existing config file, if it exists
                 self.read_config()
             except (IOError, configparser.NoOptionError,
                     configparser.NoSectionError):
                 print('Missing config information, please run '
                       '"exist authorize"')
             else:
-                # Everything is good! Get the requested resource(s)
                 self.get_resource(arguments)
 
     def read_config(self):
@@ -67,8 +75,9 @@ class ExistCli:
         with open(self.config_file) as cfg:
             try:
                 self.config.read_file(cfg)
-            except AttributeError:  # Not python 3.X fallback
+            except AttributeError:
                 self.config.readfp(cfg)
+
         self.client_id = self.config.get('exist', 'client_id')
         self.client_secret = self.config.get('exist', 'client_secret')
         self.access_token = self.config.get('exist', 'access_token')
@@ -76,9 +85,21 @@ class ExistCli:
     def write_config(self, access_token):
         """ Write credentials to the config file """
         self.config.add_section('exist')
-        self.config.set('exist', 'client_id', self.client_id)
-        self.config.set('exist', 'client_secret', self.client_secret)
+
+        # TODO: config is reading 'None' as string during authorization, so clearing this out
+        # if no id or secret is set - need to fix this later
+        if self.client_id:
+            self.config.set('exist', 'client_id', self.client_id)
+        else:
+            self.config.set('exist', 'client_id', '')
+
+        if self.client_secret:
+            self.config.set('exist', 'client_secret', self.client_secret)
+        else:
+            self.config.set('exist', 'client_secret', '')
+
         self.config.set('exist', 'access_token', access_token)
+
         with open(self.config_file, 'w') as cfg:
             self.config.write(cfg)
         print('Credentials written to %s' % self.config_file)
@@ -91,8 +112,11 @@ class ExistCli:
         date_min = arguments['--date_min']
         date_max = arguments['--date_max']
 
+        # feed in the config we have, and let the Exist class figure out the best
+        # way to authenticate
         exist = Exist(self.client_id, self.client_secret, self.access_token)
 
+        # TODO: Tidy this up since we are repeating ourselves a lot below
         if arguments['user']:
             result = exist.user()
         elif arguments['attributes']:
@@ -110,20 +134,34 @@ class ExistCli:
         else:
             pp.pprint(result.data)
 
-    def authorize(self):
+    def authorize(self, api_token=None, username=None, password=None):
         """
         Authorize a user using the browser and a CherryPy server, and write
         the resulting credentials to a config file.
         """
 
-        # Thanks to the magic of docopts, I can be guaranteed to have a
-        # a client_id and client_secret
-        auth = ExistAuth(self.client_id, self.client_secret)
-        auth.browser_authorize()
+        access_token = None
 
-        # Write the authentication information to a config file for later use
-        if auth.token:
-            self.write_config(auth.token['access_token'])
+        if username and password:
+            # if we have a username and password, go and collect a token
+            auth = ExistAuthBasic(username, password)
+            auth.authorize()
+            if auth.token:
+                access_token = auth.token['access_token']
+        elif api_token:
+            # if we already have a token, just use that
+            access_token = api_token
+        else:
+            # if we have a client_id and client_secret, we need to
+            # authorize through the browser
+            auth = ExistAuth(self.client_id, self.client_secret)
+            auth.browser_authorize()
+            if auth.token:
+                access_token = auth.token['access_token']
+
+        # store the access token in the config file
+        if access_token:
+            self.write_config(access_token)
         else:
             print('ERROR: We were unable to authorize to use the Exist API.')
 
