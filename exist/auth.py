@@ -13,7 +13,9 @@ from oauthlib.oauth2.rfc6749.errors import (
     MismatchingStateError,
     MissingTokenError
 )
-from requests_oauthlib import OAuth2Session
+
+from oauthlib.oauth2 import Client
+from requests_oauthlib import OAuth2, OAuth2Session
 from requests.auth import AuthBase
 
 # TODO: These are doubled up in exist.py - put them in central location to import from
@@ -91,6 +93,25 @@ class ExistAuth:
             '%saccess_token/' % OAUTH_URL, code=code,
             client_secret=self.client_secret)
         return self.token['access_token']
+
+    def refresh_token(self, refresh_token):
+        """
+        Get a new token, using the provided refresh token. Returns the new
+        access_token.
+        """
+
+        response = requests.post('%saccess_token' % OAUTH_URL, {
+                                 'refresh_token': refresh_token,
+                                 'grant_type': 'refresh_token',
+                                 'client_id': self.client_id,
+                                 'client_secret': self.client_secret
+                                 })
+        resp = json.loads(response.content)
+
+        if 'access_token' in resp:
+            self.token = resp['access_token']
+
+        return resp
 
     def browser_authorize(self):
         """

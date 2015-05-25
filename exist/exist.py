@@ -69,10 +69,20 @@ class Exist:
         attribute_object = self._get_object(self.read_api.correlations.attribute, attribute_name, **{'limit': limit, 'page': page, 'date_min': date_min, 'date_max': date_max})
         return ExistAttributeCorrelation(attribute_object)
 
+    def arquire_attributes(self, attributes, active=True):
+        attribute_update = self._post_object(self.update_api.attributes.acquire, attributes)
+        return ExistAttributeResponse(attribute_update)
+
     def _get_object(self, api_section, object_id=None, **kwargs):
         try:
             args = (object_id,) if object_id else tuple()
             return api_section(*args).get(**kwargs)
+        except (HttpClientError, HttpServerError):
+            ExistHttpException.build_exception(sys.exc_info()[1])
+
+    def _post_object(self, api_section, data=None, **kwargs):
+        try:
+            return api_section().post(data)
         except (HttpClientError, HttpServerError):
             ExistHttpException.build_exception(sys.exc_info()[1])
 
@@ -152,4 +162,8 @@ class ExistInsight(ExistObject):
 
 
 class ExistAverage(ExistObject):
+    pass
+
+
+class ExistAttributeResponse(ExistObject):
     pass

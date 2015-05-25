@@ -3,6 +3,7 @@
 
 Usage:
   exist authorize [--client_id=<client_id> --client_secret=<client_secret> | --api_token=<token> | --username=<username> --password=<password>] [--redirect_uri=<redirect_uri>] [--config=<config_file>]
+  exist refresh_auth_token [--config=<config_file>]
   exist user [--config=<config_file>]
   exist attributes [<attribute_name>] [--limit=<limit>] [--page=<page>] [--date_min=<date_min>] [--date_max=<date_max>] [--config=<config_file>]
   exist insights [<attribute_name>] [--limit=<limit>] [--page=<page>] [--date_min=<date_min>] [--date_max=<date_max>] [--config=<config_file>]
@@ -25,6 +26,7 @@ Options:
 
 """
 from __future__ import absolute_import
+import json
 
 from docopt import docopt
 from pprint import PrettyPrinter
@@ -69,7 +71,10 @@ class ExistCli:
                 print('Missing config information, please run '
                       '"exist authorize"')
             else:
-                self.get_resource(arguments)
+                if arguments['refresh_auth_token']:
+                    self.refresh_token(arguments)
+                else:
+                    self.get_resource(arguments)
 
     def read_config(self):
         """ Read credentials from the config file """
@@ -165,6 +170,23 @@ class ExistCli:
             self.write_config(access_token)
         else:
             print('ERROR: We were unable to authorize to use the Exist API.')
+
+    def refresh_token(self, arguments):
+        """
+        Refresh a user's access token, using existing the refresh token previously
+        received in the auth flow.
+        """
+
+        new_access_token = None
+
+        auth = ExistAuth(self.client_id, self.client_secret)
+        resp = auth.refresh_token(self.access_token)
+        if auth.token:
+            new_access_token = auth.token['access_token']
+            print('OAuth token refreshed: %s' % new_access_token)
+            self.write_config(new_access_token)
+        else:
+            print('ERROR: We were unable to refresh the OAuth token | %s' % json.dumps(resp))
 
 
 def main():
