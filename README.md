@@ -36,10 +36,10 @@ If you already have a token, add it to the following command:
 
     exist authorize --api_token=<token>
 
-To use OAuth authorizations and store the returned token add your "App key" and "App secret" in the following
+To use OAuth authorizations and store the returned token add your "App key", "App secret" and "Redirect URL" (optional) in the following
 command (Note: this requires app to registered directly with Exist):
 
-    exist authorize --client_id=<app_key> --client_secret=<app_secret>
+    exist authorize --client_id=<app_key> --client_secret=<app_secret> --redirect_uri=<redirect_uri>
 
 That will save the necessary credentials for making further API calls to a file
 called "exist.cfg". These credentials should be kept private. You can use same
