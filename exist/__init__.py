@@ -17,9 +17,9 @@ from .exist import (
 __all__ = ['API_URL', 'OAUTH_URL', 'Exist', 'ExistAttribute',
            'ExistCorrelation', 'ExistInsight', 'ExistAverage']
 __title__ = 'exist'
-__author__ = 'Curo'
-__author_email__ = 'matt@meetcuro.com'
-__copyright__ = 'Copyright 2015 Curo'
+__author__ = 'Matt McDougall'
+__author_email__ = 'matt@moatmedia.com.au'
+__copyright__ = 'Copyright 2015 MoatMedia'
 __license__ = 'Apache 2.0'
-__version__ = '0.1.0'
+__version__ = '0.1.5'
 __release__ = __version__
