@@ -34,7 +34,7 @@ command:
 
 If you already have a token, add it to the following command:
 
-    exist authorize --username=<username> --password=<password>
+    exist authorize --api_token=<token>
 
 To use OAuth authorizations and store the returned token add your "App key" and "App secret" in the following
 command (Note: this requires app to registered directly with Exist):
