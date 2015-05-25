@@ -95,4 +95,5 @@ same resources using the Python API:
 
 Roadmap
 =======
-* Write API connectivitiy in progress
+* Tests (next)
+* Write API connectivitiy (in progress)
