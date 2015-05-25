@@ -2,7 +2,7 @@
 """Exist client
 
 Usage:
-  exist authorize [--client_id=<client_id> --client_secret=<client_secret> | --api_token=<token> | --username=<username> --password=<password>] [--config=<config_file>]
+  exist authorize [--client_id=<client_id> --client_secret=<client_secret> | --api_token=<token> | --username=<username> --password=<password>] [--redirect_uri=<redirect_uri>] [--config=<config_file>]
   exist user [--config=<config_file>]
   exist attributes [<attribute_name>] [--limit=<limit>] [--page=<page>] [--date_min=<date_min>] [--date_max=<date_max>] [--config=<config_file>]
   exist insights [<attribute_name>] [--limit=<limit>] [--page=<page>] [--date_min=<date_min>] [--date_max=<date_max>] [--config=<config_file>]
@@ -45,6 +45,7 @@ class ExistCli:
         self.client_id = None
         self.client_secret = None
         self.access_token = None
+        self.redirect_uri = arguments['--redirect_uri']
 
         if arguments['authorize']:
             # check which type of authorization we are trying for
@@ -154,7 +155,7 @@ class ExistCli:
         else:
             # if we have a client_id and client_secret, we need to
             # authorize through the browser
-            auth = ExistAuth(self.client_id, self.client_secret)
+            auth = ExistAuth(self.client_id, self.client_secret, 'code', self.redirect_uri)
             auth.browser_authorize()
             if auth.token:
                 access_token = auth.token['access_token']
