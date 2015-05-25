@@ -92,6 +92,8 @@ same resources using the Python API:
         ]
     }
 
+More commands are available as per the help section of the exist command from ``exist --help``
+
 
 Roadmap
 =======
