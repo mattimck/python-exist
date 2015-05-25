@@ -106,8 +106,8 @@ class ExistAuth:
             'server.socket_port': 443,
 
             'server.ssl_module': 'pyopenssl',
-            'server.ssl_certificate':'/Users/matt/Sites/python-exist/tests/files/certificate.pem',
-            'server.ssl_private_key':'/Users/matt/Sites/python-exist/tests/files/privkey.pem',
+            'server.ssl_certificate':'tests/files/certificate.cert',
+            'server.ssl_private_key':'tests/files/key.key',
             # 'server.ssl_certificate_chain':'/home/ubuntu/gd_bundle.crt'
         }
 
