@@ -21,5 +21,5 @@ __author__ = 'Matt McDougall'
 __author_email__ = 'matt@moatmedia.com.au'
 __copyright__ = 'Copyright 2015 MoatMedia'
 __license__ = 'Apache 2.0'
-__version__ = '0.1.9'
+__version__ = '0.1.9.1'
 __release__ = __version__
