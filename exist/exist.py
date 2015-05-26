@@ -70,6 +70,10 @@ class Exist:
         return ExistAttributeCorrelation(attribute_object)
 
     def arquire_attributes(self, attributes, active=True):
+        """
+        Claims a list of attributes for the current client.
+        Can also disable attributes. Returns update response object.
+        """
         attribute_update = self._post_object(self.update_api.attributes.acquire, attributes)
         return ExistAttributeResponse(attribute_update)
 

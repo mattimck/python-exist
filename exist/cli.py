@@ -4,6 +4,7 @@
 Usage:
   exist authorize [--client_id=<client_id> --client_secret=<client_secret> | --api_token=<token> | --username=<username> --password=<password>] [--redirect_uri=<redirect_uri>] [--config=<config_file>]
   exist refresh_auth_token [--config=<config_file>]
+  exist acquire_attributes [<attribute:value> <attribute:value>...] [--config=<config_file>]
   exist user [--config=<config_file>]
   exist attributes [<attribute_name>] [--limit=<limit>] [--page=<page>] [--date_min=<date_min>] [--date_max=<date_max>] [--config=<config_file>]
   exist insights [<attribute_name>] [--limit=<limit>] [--page=<page>] [--date_min=<date_min>] [--date_max=<date_max>] [--config=<config_file>]
@@ -133,6 +134,9 @@ class ExistCli:
             result = exist.averages(attribute_name, limit, page, date_min, date_max)
         elif arguments['correlations']:
             result = exist.correlations(attribute_name, limit, page, date_min, date_max)
+        elif arguments['acquire_attributes']:
+            attributes_dict = [{'name': x.split(':')[0], 'active': x.split(':')[1]} for x in arguments['<attribute:value>']]
+            result = exist.arquire_attributes(attributes_dict)
 
         pp = PrettyPrinter(indent=4)
         if isinstance(result, list):
