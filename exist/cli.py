@@ -61,11 +61,14 @@ class ExistCli:
             elif arguments['--api_token']:
                 # a predetermined token provided
                 self.authorize(api_token=arguments['--api_token'])
-            else:
+            elif arguments['--client_id'] and arguments['--client_secret']:
                 # OAuth credentials provided
                 self.client_id = arguments['--client_id']
                 self.client_secret = arguments['--client_secret']
                 self.authorize()
+            else:
+                print('You must provide details for at least one type of authorization. Run "exist --help" for more information.')
+
         elif not arguments['--version'] and not arguments['--help']:
             try:
                 # try to read existing config file, if it exists
