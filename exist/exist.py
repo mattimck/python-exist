@@ -77,6 +77,20 @@ class Exist:
         attribute_update = self._post_object(self.update_api.attributes.acquire, attributes)
         return ExistAttributeResponse(attribute_update)
 
+    def release_attributes(self, attributes, active=True):
+        """
+        Releases named attributes from this service. Returns update response object.
+        """
+        attribute_update = self._post_object(self.update_api.attributes.release, attributes)
+        return ExistAttributeResponse(attribute_update)
+
+    def owned_attributes(self):
+        """
+        Returns a list of attributes owned by this service.
+        """
+        attributes = self._get_object(self.update_api.attributes.owned)
+        return [ExistOwnedAttributeResponse(attribute) for attribute in attributes]
+
     def _get_object(self, api_section, object_id=None, **kwargs):
         try:
             args = (object_id,) if object_id else tuple()
@@ -155,6 +169,10 @@ class ExistAttributeCorrelation(ExistObject):
         for result in self.results:
             correlation_results.append(ExistCorrelation(result))
         self.results = correlation_results
+
+
+class ExistOwnedAttributeResponse(ExistObject):
+    pass
 
 
 class ExistCorrelation(ExistObject):
