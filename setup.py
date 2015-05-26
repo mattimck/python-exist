@@ -21,12 +21,12 @@ setup(
     author_email=refind('__author_email__'),
     url='https://github.com/mattimck/python-exist',
     packages=['exist'],
-    package_data={'': ['LICENSE'], '': ['requirements/*']},
+    package_data={'': ['LICENSE'], '': ['requirements/*'], '': ['README.md']},
     include_package_data=True,
     install_requires=["setuptools"] + required,
     license=refind('__license__'),
     entry_points={
         'console_scripts': ['exist=exist.cli:main'],
     },
-    classifiers = [],
+    classifiers=[],
 )
