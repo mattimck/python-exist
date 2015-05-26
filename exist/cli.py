@@ -7,6 +7,7 @@ Usage:
   exist acquire_attributes [<attribute:value> <attribute:value>...] [--config=<config_file>]
   exist release_attributes [<attribute_name> <attribute_name>...] [--config=<config_file>]
   exist owned_attributes [--config=<config_file>]
+  exist update_attributes [<attribute:date:value> <attribute:date:value>...] [--config=<config_file>]
   exist user [--config=<config_file>]
   exist attributes [<attribute_name>] [--limit=<limit>] [--page=<page>] [--date_min=<date_min>] [--date_max=<date_max>] [--config=<config_file>]
   exist insights [<attribute_name>] [--limit=<limit>] [--page=<page>] [--date_min=<date_min>] [--date_max=<date_max>] [--config=<config_file>]
@@ -144,6 +145,9 @@ class ExistCli:
             result = exist.release_attributes(attributes_dict)
         elif arguments['owned_attributes']:
             result = exist.owned_attributes()
+        elif arguments['update_attributes']:
+            attributes_dict = [{'name': x.split(':')[0], 'date': x.split(':')[1], 'value': x.split(':')[2]} for x in arguments['<attribute:date:value>']]
+            result = exist.update_attributes(attributes_dict)
 
         pp = PrettyPrinter(indent=4)
         if isinstance(result, list):

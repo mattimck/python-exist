@@ -91,6 +91,13 @@ class Exist:
         attributes = self._get_object(self.update_api.attributes.owned)
         return [ExistOwnedAttributeResponse(attribute) for attribute in attributes]
 
+    def update_attributes(self, attributes):
+        """
+        Releases named attributes from this service. Returns update response object.
+        """
+        attribute_update = self._post_object(self.update_api.attributes.update, attributes)
+        return ExistAttributeResponse(attribute_update)
+
     def _get_object(self, api_section, object_id=None, **kwargs):
         try:
             args = (object_id,) if object_id else tuple()
